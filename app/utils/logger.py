@@ -24,7 +24,7 @@ def setup_logger(level: Union[int, str]) -> None:
         level=logging.getLevelName(level),
         handlers=[
             InterceptHandler(),
-            logging.FileHandler(filename="bot.log", mode="a", encoding="utf-8")
+            logging.FileHandler(filename="example_bot.log", mode="a", encoding="utf-8")
         ],
         format="%(asctime)s | %(levelname)s | %(name)s:%(funcName)s:%(lineno)d - %(message)s"
     )
