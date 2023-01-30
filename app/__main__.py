@@ -12,24 +12,24 @@ from app.config import config
 from app.handlers import error
 from app.handlers.commands import setup_commands_routers
 from app.handlers.user import setup_user_routers
-from app.middlewares import L10nMiddleware, ThrottlingMiddleware
+from app.middlewares import DataMiddleware, L10nMiddleware, ThrottlingMiddleware
 from app.models import __beanie_models__
-from app.utils.commands import set_commands
-from app.utils.fluent import setup_fluent
-from app.utils.logger import setup_logger
+from app.services import setup_fluent, setup_logger
+from app.utils.commands import set_default_commands
 
 
-async def main():
+async def main() -> None:
     setup_logger("WARNING")
 
     locales = Path(__file__).parent.joinpath("locales")
-    l10n = setup_fluent(locales)
+    fluent = setup_fluent(locales)
 
-    client = AsyncIOMotorClient(config.mongodb_dsn)
+    mongodb = AsyncIOMotorClient(config.mongo_dsn)
 
     await init_beanie(
-        database=client.example_bot,
-        document_models=__beanie_models__
+        database=mongodb.example_bot,
+        document_models=__beanie_models__,
+        allow_index_dropping=True
     )
 
     bot = Bot(token=config.bot_token, parse_mode="HTML")
@@ -40,23 +40,24 @@ async def main():
         dp = Dispatcher(storage=RedisStorage.from_url(config.redis_dsn))
 
     dp.message.filter(F.chat.type == "private")
+    dp.update.outer_middleware(DataMiddleware(fluent))
 
     dp.message.middleware(ThrottlingMiddleware())
-    dp.message.middleware(L10nMiddleware(l10n))
-    dp.callback_query.middleware(L10nMiddleware(l10n))
+    dp.message.middleware(L10nMiddleware())
+    dp.callback_query.middleware(L10nMiddleware())
 
     dp.include_router(setup_commands_routers())
     dp.include_router(setup_user_routers())
     dp.include_router(error.router)
 
-    await set_commands(bot)
-    user = await bot.get_me()
+    bot_data = await bot.get_me()
+    await set_default_commands(bot)
 
     logging.warning("Start bot")
     await bot.send_message(config.admin_id, "Бот перезапущен 📡")
 
     try:
-        logging.warning(f"Run polling for bot @{user.username}")
+        logging.warning(f"Run polling for bot @{bot_data.username}")
         await bot.delete_webhook(drop_pending_updates=True)
         await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
     finally:

@@ -14,4 +14,6 @@ async def profile(msg: Message, state: FSMContext, l10n: TranslatorRunner):
     await state.clear()
 
     data = await User.set_user(msg.from_user)
-    await msg.answer(l10n.user.profile(id=data.user_id, name=data.name, username=str(data.username)))
+    text = l10n.user.profile(id=data.user_id, name=str(data.name), username=str(data.username))
+
+    await msg.answer(text)

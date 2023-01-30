@@ -5,7 +5,7 @@ from fluentogram import TranslatorRunner
 from app.keyboards.inline.callback_data import EditLangCallback
 
 
-def keyboard_set_lang(l10n: TranslatorRunner) -> InlineKeyboardMarkup:
+def keyboard_edit_lang(l10n: TranslatorRunner) -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardBuilder()
 
     keyboard.button(

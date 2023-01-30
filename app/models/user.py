@@ -18,9 +18,7 @@ class User(Document):
         data = await cls.by_user_id(user.id)
 
         if data is None:
-            name = html.quote(user.first_name)
-            data = cls(user_id=user.id, username=user.username, name=name)
-
+            data = cls(user_id=user.id, username=user.username, name=html.quote(user.first_name))
             await data.create()
         else:
             await data.set({cls.username: user.username})
@@ -28,13 +26,9 @@ class User(Document):
         return data
 
     @classmethod
-    async def by_user_id(cls, user_id: int) -> "User":
+    async def by_user_id(cls, user_id: int) -> Optional["User"]:
         return await cls.find_one(cls.user_id == user_id)
 
     @classmethod
-    async def by_name(cls, name: str) -> "User":
-        return await cls.find_one(cls.name == name)
-
-    @classmethod
-    async def by_username(cls, username: str) -> "User":
+    async def by_username(cls, username: str) -> Optional["User"]:
         return await cls.find_one(cls.username == username)

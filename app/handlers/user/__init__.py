@@ -2,10 +2,10 @@ from aiogram import Router
 
 
 def setup_user_routers() -> Router:
-    from . import user_data
+    from . import profile
 
     router = Router()
 
-    router.include_router(user_data.router)
+    router.include_router(profile.router)
 
     return router

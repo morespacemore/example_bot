@@ -15,7 +15,7 @@ class ThrottlingMiddleware(BaseMiddleware):
         event: Message,
         data: Dict[str, Any],
     ) -> Any:
-        if event.chat.id in self.cache:
+        if event.chat.id in self.cache.keys():
             return
 
         self.cache[event.chat.id] = None
