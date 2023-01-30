@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 
 from aiogram import html, types
 from beanie import Document, Indexed
@@ -14,14 +14,16 @@ class User(Document):
         name = "users"
 
     @classmethod
-    async def set_user(cls, user: types.User) -> "User":
+    async def set_user(cls, user: types.User, **kwargs: Any) -> "User":
         data = await cls.by_user_id(user.id)
 
         if data is None:
-            data = cls(user_id=user.id, username=user.username, name=html.quote(user.first_name))
+            kwargs["name"] = html.quote(user.first_name)
+
+            data = cls(user_id=user.id, username=user.username, **kwargs)
             await data.create()
         else:
-            await data.set({cls.username: user.username})
+            await data.set({cls.username: user.username, **kwargs})
 
         return data
 
