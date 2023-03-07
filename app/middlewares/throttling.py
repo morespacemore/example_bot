@@ -15,8 +15,8 @@ class ThrottlingMiddleware(BaseMiddleware):
         event: Message,
         data: Dict[str, Any],
     ) -> Any:
-        if event.chat.id in self.cache.keys():
-            return
+        if event.chat.id not in self.cache.keys():
+            self.cache[event.chat.id] = None
+            return await handler(event, data)
 
-        self.cache[event.chat.id] = None
-        return await handler(event, data)
+        return

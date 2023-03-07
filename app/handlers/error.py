@@ -1,11 +1,11 @@
 import logging
 
 from aiogram import Router
-from aiogram.types.error_event import ErrorEvent
+from aiogram.types import ErrorEvent
 
 router = Router()
 
 
 @router.errors()
-async def error_handler(exception: ErrorEvent):
-    logging.error(f'{exception.exception}. Update: {exception.update.dict()}')
+async def error_handler(event: ErrorEvent):
+    logging.error("Exception: %r. Update: %r", event.exception, event.update)
