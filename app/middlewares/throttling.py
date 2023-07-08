@@ -3,7 +3,7 @@ from typing import Any, Awaitable, Callable, Dict
 from aiogram import BaseMiddleware
 from aiogram.types import Message
 
-from app.utils.cache import throttling_cache
+from app.utils.caches import throttling_cache
 
 
 class ThrottlingMiddleware(BaseMiddleware):
