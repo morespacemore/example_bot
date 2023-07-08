@@ -4,6 +4,7 @@ from pydantic import BaseSettings, MongoDsn, RedisDsn
 
 
 class Settings(BaseSettings):
+    database_name: str
     bot_token: str
     mongo_dsn: MongoDsn
     redis_dsn: Optional[RedisDsn]
@@ -11,9 +12,10 @@ class Settings(BaseSettings):
     bot_username: str
     admin_id: int
     admin_username: str
-    timezone: str = "Europe/Moscow"
-    datetime_format: str = "%d.%m.%Y %H:%M"
     rate_limit: float = 0.5
+    datetime_format: str = "%d.%m.%Y %H:%M"
+    timezone: str = "Europe/Moscow"
+    short_datetime_format: str = "%d.%m.%Y"
 
     class Config:
         env_file = ".env"

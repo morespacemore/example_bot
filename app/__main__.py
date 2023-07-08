@@ -27,9 +27,9 @@ async def main() -> None:
     mongodb = AsyncIOMotorClient(config.mongo_dsn)
 
     await init_beanie(
-        database=mongodb.example_bot,
-        document_models=__beanie_models__,
-        allow_index_dropping=True
+        database=mongodb[config.database_name],
+        allow_index_dropping=True,
+        document_models=__beanie_models__
     )
 
     bot = Bot(token=config.bot_token, parse_mode="HTML")
@@ -50,14 +50,14 @@ async def main() -> None:
     dp.include_router(setup_user_routers())
     dp.include_router(error.router)
 
-    bot_data = await bot.get_me()
-    await set_default_commands(bot)
+    bot_info = await bot.get_me()
+    await set_default_commands(bot, fluent)
 
-    logging.warning("Start bot")
-    await bot.send_message(config.admin_id, "Бот перезапущен 📡")
+    logging.warning("Bot startup")
+    await bot.send_message(config.admin_id, "⚠️ Bot restarted ⚠️")
 
     try:
-        logging.warning(f"Run polling for bot @{bot_data.username}")
+        logging.warning(f"Run polling for bot @{bot_info.username}")
         await bot.delete_webhook(drop_pending_updates=True)
         await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
     finally:
